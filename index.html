@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
     
-    <title>Data Collector for AGOL</title>
+    <title>Data Collector for Travel Intention</title>
 
     <style>
         html,
@@ -55,7 +55,9 @@
 
             const view = new MapView({
                 container: "viewDiv", // Reference to the DOM node that will contain the view
-                map: map // References the map object
+                map: map, // References the map object
+                center: [-112, 38],
+                zoom: 8
             });
 
             const locateBtn = new Locate({
