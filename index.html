@@ -22,7 +22,7 @@
                 z-index: 10;
                 top: 10px;
                 right: 10px;
-                background-color: #0079c1;
+                background-color: #fb8197;
                 color: white;
                 padding: 8px 16px;
                 border: none;
@@ -33,7 +33,7 @@
             }
 
             .addRecordBtn:hover {
-                background-color: #005a87;
+                background-color: #ce566c;
 }
         }
     </style>
@@ -50,7 +50,7 @@
             esriConfig.apiKey="AAPK757f4438013a4af08cc1a774d3788db9qSAv4TlOSeFWIJ1OIl6RyxaLb7U5rO_-tyazPZqw99vrEKIHVQ3Twlh9HvLom22T";
 
             const map = new Map({
-                basemap: "satellite"
+                basemap: "arcgis-streets-night"
             });
 
             const view = new MapView({
@@ -83,7 +83,7 @@
             // Adds the search widget below other elements in
             // the top left corner of the view
             view.ui.add(searchWidget, {
-                position: "top-right",
+                position: "bottom-left",
                 index: 2
             });
 
