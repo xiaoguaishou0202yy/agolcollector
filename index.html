@@ -25,7 +25,7 @@
 
     <!--loading the modules-->
     <script>
-        require(["esri/config", "esri/Map", "esri/views/MapView" ], (esriConfig, Map, MapView) => {
+        require(["esri/config", "esri/Map", "esri/views/MapView", "esri/widgets/Locate", "esri/layers/FeatureLayer"], (esriConfig, Map, MapView, Locate, FeatureLayer) => {
             
             //adding in API key
             esriConfig.apiKey="AAPK757f4438013a4af08cc1a774d3788db9qSAv4TlOSeFWIJ1OIl6RyxaLb7U5rO_-tyazPZqw99vrEKIHVQ3Twlh9HvLom22T";
@@ -38,7 +38,25 @@
                 container: "viewDiv", // Reference to the DOM node that will contain the view
                 map: map // References the map object
             });
+
+            const locateBtn = new Locate({
+                view: view
             });
+
+            // Add the locate widget to the top left corner of the view
+            view.ui.add(locateBtn, {
+                position: "top-left"
+            });
+
+            // Create featurelayer from feature service 
+            const layer = new FeatureLayer({ 
+                // URL to the service 
+                url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/survey123_baa11953da754e559d9154ea31915630_results/FeatureServer" //Your item URL Goes Here
+            });
+
+            map.add(layer);
+
+        });
     </script>
 </head>
 
