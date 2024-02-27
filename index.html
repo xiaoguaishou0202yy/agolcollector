@@ -7,6 +7,7 @@
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
     
     <title>Data Collector for Travel Intention</title>
+    
 
     <style>
         html,
@@ -48,7 +49,7 @@
             
             //adding in API key
             esriConfig.apiKey="AAPK757f4438013a4af08cc1a774d3788db9qSAv4TlOSeFWIJ1OIl6RyxaLb7U5rO_-tyazPZqw99vrEKIHVQ3Twlh9HvLom22T";
-
+            ////https://xiaoguaishou0202yy.github.io/*
             const map = new Map({
                 basemap: "arcgis-streets-night"
             });
@@ -59,6 +60,12 @@
                 center: [128, 34],
                 zoom: 2
             });
+
+            // Define a pop-up for usaeduLayer
+            const popupPOI = {
+            "title": "I Want To Travel Here!",
+            "content": "<b>Nickname:</b> {your_nickname}<br><b>Home Country:</b> {where_are_you_from}<br><b>Recommended Cities:</b> {which_cities_in_your_country_do}<br><b>Self-Defined Race:</b> {what_racial_or_ethnic_groups_de}<br>"
+            }
 
             const locateBtn = new Locate({
                 view: view
@@ -72,7 +79,11 @@
             // Create featurelayer from feature service 
             const layer = new FeatureLayer({ 
                 // URL to the service 
-                url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/survey123_baa11953da754e559d9154ea31915630_results/FeatureServer" //Your item URL Goes Here
+                url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/survey123_baa11953da754e559d9154ea31915630_results/FeatureServer", //Your item URL Goes Here
+                //adding the popup here
+                outFields: ["your_nickname","where_are_you_from","which_cities_in_your_country_do","what_racial_or_ethnic_groups_de"],
+                popupTemplate: popupPOI
+            
             });
 
             map.add(layer);
@@ -85,7 +96,7 @@
             view.ui.add(searchWidget, {
                 position: "bottom-left",
                 index: 2
-            });
+            }); 
 
         });
     </script>
