@@ -77,17 +77,64 @@
             "esri/widgets/Locate", 
             "esri/layers/FeatureLayer", 
             "esri/widgets/Search",
+            "esri/portal/Portal",
+            "esri/widgets/BasemapGallery",
+            "esri/widgets/BasemapGallery/support/PortalBasemapsSource",
             "esri/widgets/Expand",
-            "esri/core/reactiveUtils"
-        ], (esriConfig, Map, MapView, Locate, FeatureLayer, Search, Expand, reactiveUtils) => {
-
-            let raceLayerView;
+            "esri/core/reactiveUtils",
+            "esri/layers/GroupLayer",
+            "esri/widgets/LayerList",
+            "esri/widgets/Slider"
+        ], (esriConfig, Map, MapView, Locate, FeatureLayer, Search, Portal, BasemapGallery, PortalBasemapsSource, Expand, reactiveUtils, GroupLayer, LayerList, Slider) => {
             
             //adding in API key
             esriConfig.apiKey="AAPK757f4438013a4af08cc1a774d3788db9qSAv4TlOSeFWIJ1OIl6RyxaLb7U5rO_-tyazPZqw99vrEKIHVQ3Twlh9HvLom22T";
             ////https://xiaoguaishou0202yy.github.io/*
+
+
+            const portal = new Portal();
+
+            // source for basemaps from a portal group
+            // containing basemaps with different projections
+            const source = new PortalBasemapsSource({
+                portal,
+                query: {
+                    id: "bdb9d65e0b5c480c8dcc6916e7f4e099"
+                }
+            });
+
+            let raceLayerView;
+
+
+            // Create layer showing sample data of the United States.
+            const uLayer = new FeatureLayer({
+                url: "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/World_Continents/FeatureServer",
+                title: "Unique Color",
+            });
+
+            // Create layer showing sample census data of the United States.
+            // Set visibility to false so it's not visible on startup.
+            const gLayer = new FeatureLayer({
+                url: "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/World_Continents/FeatureServer",
+                title: "Gradient Color",
+                visible: false
+            });
+
+            // Create GroupLayer with the two MapImageLayers created above
+            // as children layers.
+            const ctntGroupLayer = new GroupLayer({
+                title: "World Continents",
+                visible: false,
+                visibilityMode: "exclusive",
+                layers: [uLayer, gLayer],
+                opacity: 0.75
+            });
+
+
             const map = new Map({
-                basemap: "arcgis-streets-night"
+
+                basemap: "arcgis-streets-night",
+                layers: [ctntGroupLayer]
             });
 
             const view = new MapView({
@@ -95,6 +142,135 @@
                 map: map, // References the map object
                 center: [128, 34],
                 zoom: 2
+            });
+
+
+
+        // Creates actions in the LayerList.
+        async function defineActions(event) {
+            const { item } = event;
+
+            await item.layer.when();
+
+            if (item.title === "US Demographics") {
+
+                item.actionsSections = [
+                [
+                    {
+                    title: "Go to full extent",
+                    icon: "zoom-out-fixed",
+                    id: "full-extent"
+                    },
+                    {
+                    title: "Layer information",
+                    icon: "information",
+                    id: "information"
+                    }
+                ],
+                [
+                    {
+                    title: "Increase opacity",
+                    icon: "chevron-up",
+                    id: "increase-opacity"
+                    },
+                    {
+                    title: "Decrease opacity",
+                    icon: "chevron-down",
+                    id: "decrease-opacity"
+                    }
+                ]
+                ];
+            }
+
+            // Adds a slider for updating a group layer's opacity
+            if (item.children.length > 1 && item.parent) {
+                const slider = new Slider({
+                min: 0,
+                max: 1,
+                precision: 2,
+                values: [1],
+                visibleElements: {
+                    labels: true,
+                    rangeLabels: true
+                }
+                });
+
+                item.panel = {
+                content: slider,
+                icon: "sliders-horizontal",
+                title: "Change layer opacity"
+                };
+
+                // Watch the slider's values array and update the layer's opacity
+                reactiveUtils.watch(
+                () => slider.values.map((value) => value),
+                (values) => (item.layer.opacity = values[0])
+                );
+            }
+        }
+
+        view.when(() => {
+            const layerList = new LayerList({
+                view: view,
+                // executes for each ListItem in the LayerList
+                listItemCreatedFunction: defineActions
+            });
+
+            // Event listener that fires each time an action is triggered
+            layerList.on("trigger-action", (event) => {
+                // The layer visible in the view at the time of the trigger.
+                const visibleLayer = USALayer.visible ? USALayer : censusLayer;
+
+                // Capture the action id.
+                const id = event.action.id;
+
+                if (id === "full-extent") {
+                // If the full-extent action is triggered then navigate
+                // to the full extent of the visible layer
+                view.goTo(visibleLayer.fullExtent).catch((error) => {
+                    if (error.name != "AbortError") {
+                    console.error(error);
+                    }
+                });
+                } else if (id === "information") {
+                // If the information action is triggered, then
+                // open the item details page of the service layer
+                window.open(visibleLayer.url);
+                } else if (id === "increase-opacity") {
+                // If the increase-opacity action is triggered, then
+                // increase the opacity of the GroupLayer by 0.25
+                if (ctntGroupLayer.opacity < 1) {
+                    ctntGroupLayer.opacity += 0.25;
+                }
+                } else if (id === "decrease-opacity") {
+                // If the decrease-opacity action is triggered, then
+                // decrease the opacity of the GroupLayer by 0.25
+                if (ctntGroupLayer.opacity > 0) {
+                    ctntGroupLayer.opacity -= 0.25;
+                }
+                }
+            });
+
+            // Add widget to the top right corner of the view
+            view.ui.add(layerList, "bottom-left");
+        });
+
+
+
+
+
+
+
+
+            const bgExpand = new Expand({
+                view,
+                content: new BasemapGallery({ source, view }),
+                expandIcon: "basemap"
+            });
+            view.ui.add(bgExpand, "bottom-right");
+
+            reactiveUtils.watch(() => view.spatialReference, (spatialReference)=> {
+                document.getElementById("srDiv").innerHTML = `view.spatialReference.wkid = <b>${spatialReference.wkid}</b>`;
             });
 
             // Define a pop-up for usaeduLayer
@@ -158,9 +334,10 @@
                 const racesExpand = new Expand({
                     view: view,
                     content: racesElement,
-                    expandIcon: "filter",
+                    expandIcon: "layer-filter",
                     group: "top-left"
                 });
+
                 //clear the filters when user closes the expand widget
                 reactiveUtils.when(
                     () => !racesExpand.expanded,
@@ -192,6 +369,8 @@
     </div>
 
     <div id="viewDiv"></div>
+
+    <div id="srDiv" class="esri-widget"></div>
 </body>
 </html>
 
