@@ -106,10 +106,95 @@
             let raceLayerView;
 
 
+            function getRandomColor() {
+                var letters = '0123456789ABCDEF';
+                var color = '#';
+                for (var i = 0; i < 6; i++) {
+                    color += letters[Math.floor(Math.random() * 16)];
+                }
+                return color;
+            };
+            console.log(getRandomColor());
+
+
+
+            const colors = ["#d92b30", "#3cccb4", "#ffdf3c", "#c27c30", "#f260a1"];
+
+            const commonProperties = {
+            type: "simple-fill",
+            style: "solid"
+            };
+
+            // Symbol for Interstate highways
+            const fwySym = {
+            ...commonProperties,
+            color: colors[0]
+            };
+
+            // Symbol for U.S. Highways
+            const hwySym = {
+            ...commonProperties,
+            color: colors[1]
+            };
+
+            // Symbol for state highways
+            const stateSym = {
+            ...commonProperties,
+            color: colors[2]
+            };
+
+            // Symbol for other major highways
+            const majorSym = {
+            ...commonProperties,
+            color: colors[3]
+            };
+
+            // Symbol for other major highways
+            const otherSym = {
+            ...commonProperties,
+            color: colors[4]
+            };
+
+            const hwyRenderer = {
+            type: "unique-value", // autocasts as new UniqueValueRenderer()
+
+            defaultSymbol: otherSym,
+            defaultLabel: "Other",
+            field: "CONTINENT",
+
+            uniqueValueInfos: [
+                {
+                value: "Asia", // code for interstates/freeways
+                symbol: fwySym,
+                label: "Asia"
+                },
+                {
+                value: "South America", // code for U.S. highways
+                symbol: hwySym,
+                label: "South America"
+                },
+                {
+                value: "North America", // code for U.S. highways
+                symbol: stateSym,
+                label: "North America"
+                },
+                {
+                value: "Africa", // code for U.S. highways
+                symbol: majorSym,
+                label: "Africa"
+                }
+            ]
+
+            };
+
+
+
+
             // Create layer showing sample data of the United States.
             const uLayer = new FeatureLayer({
                 url: "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/World_Continents/FeatureServer",
                 title: "Unique Color",
+                renderer: hwyRenderer
             });
 
             // Create layer showing sample census data of the United States.
@@ -119,6 +204,12 @@
                 title: "Gradient Color",
                 visible: false
             });
+
+
+
+
+
+
 
             // Create GroupLayer with the two MapImageLayers created above
             // as children layers.
@@ -252,7 +343,7 @@
             });
 
             // Add widget to the top right corner of the view
-            view.ui.add(layerList, "bottom-left");
+            view.ui.add(layerList, "bottom-right");
         });
 
 
