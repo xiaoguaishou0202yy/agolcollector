@@ -19,6 +19,8 @@
             width: 100%;
         }
 
+
+
         .addRecordBtn {
             position: absolute;
             z-index: 10;
@@ -33,6 +35,7 @@
             cursor: pointer;
             text-decoration: none;
         }
+
 
         .addRecordBtn:hover {
             background-color: #ce566c;
@@ -114,74 +117,99 @@
                 }
                 return color;
             };
-            console.log(getRandomColor());
 
 
-
-            const colors = ["#d92b30", "#3cccb4", "#ffdf3c", "#c27c30", "#f260a1"];
+            const colors = [getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor(),getRandomColor(),getRandomColor(),getRandomColor()];
 
             const commonProperties = {
-            type: "simple-fill",
-            style: "solid"
+                type: "simple-fill",
+                style: "solid"
             };
 
-            // Symbol for Interstate highways
-            const fwySym = {
+            const Sym1 = {
             ...commonProperties,
             color: colors[0]
             };
 
-            // Symbol for U.S. Highways
-            const hwySym = {
+            const Sym2 = {
             ...commonProperties,
             color: colors[1]
             };
 
-            // Symbol for state highways
-            const stateSym = {
+            const Sym3 = {
             ...commonProperties,
             color: colors[2]
             };
 
-            // Symbol for other major highways
-            const majorSym = {
+            const Sym4 = {
             ...commonProperties,
             color: colors[3]
             };
 
-            // Symbol for other major highways
-            const otherSym = {
+            const Sym5 = {
             ...commonProperties,
             color: colors[4]
             };
 
-            const hwyRenderer = {
-            type: "unique-value", // autocasts as new UniqueValueRenderer()
+            const Sym6 = {
+            ...commonProperties,
+            color: colors[5]
+            };
 
-            defaultSymbol: otherSym,
-            defaultLabel: "Other",
+            const Sym7 = {
+            ...commonProperties,
+            color: colors[6]
+            };
+
+            const Sym8 = {
+            ...commonProperties,
+            color: colors[7]
+            };
+
+            const ctntRenderer = {
+            type: "unique-value", 
             field: "CONTINENT",
 
             uniqueValueInfos: [
                 {
-                value: "Asia", // code for interstates/freeways
-                symbol: fwySym,
+                value: "Asia", 
+                symbol: Sym1,
                 label: "Asia"
                 },
                 {
-                value: "South America", // code for U.S. highways
-                symbol: hwySym,
+                value: "South America", 
+                symbol: Sym2,
                 label: "South America"
                 },
                 {
-                value: "North America", // code for U.S. highways
-                symbol: stateSym,
+                value: "North America", 
+                symbol: Sym3,
                 label: "North America"
                 },
                 {
-                value: "Africa", // code for U.S. highways
-                symbol: majorSym,
+                value: "Africa", 
+                symbol: Sym4,
                 label: "Africa"
+                },
+                {
+                value: "Europe", 
+                symbol: Sym5,
+                label: "Europe"
+                },
+                {
+                value: "Antarctica", 
+                symbol: Sym6,
+                label: "Antarctica"
+                },
+                {
+                value: "Australia", 
+                symbol: Sym7,
+                label: "Australia"
+                },
+                {
+                value: "Oceania", 
+                symbol: Sym8,
+                label: "Oceania"
                 }
             ]
 
@@ -194,7 +222,7 @@
             const uLayer = new FeatureLayer({
                 url: "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/World_Continents/FeatureServer",
                 title: "Unique Color",
-                renderer: hwyRenderer
+                renderer: ctntRenderer
             });
 
             // Create layer showing sample census data of the United States.
@@ -218,7 +246,7 @@
                 visible: false,
                 visibilityMode: "exclusive",
                 layers: [uLayer, gLayer],
-                opacity: 0.75
+                opacity: 0.5
             });
 
 
@@ -343,7 +371,7 @@
             });
 
             // Add widget to the top right corner of the view
-            view.ui.add(layerList, "bottom-right");
+            view.ui.add(layerList, "bottom-left");
         });
 
 
@@ -394,12 +422,17 @@
             const searchWidget = new Search({
                 view: view
             });
-            // Adds the search widget below other elements in
-            // the top left corner of the view
-            view.ui.add(searchWidget, {
-                position: "bottom-left",
-                index: 2
-            }); 
+
+
+            const searchExpand = new Expand({
+                view,
+                content: searchWidget,
+                expandIcon: "search"
+            });
+            view.ui.add(
+                searchExpand, {
+                    position:"bottom-right",
+                });
 
 
             const racesNodes = document.querySelectorAll(`.race-item`);
