@@ -65,6 +65,33 @@
         }
 
 
+        #overlay {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        #overlay-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 50%;
+            height: 64%;
+            text-align: center;
+        }
+
+
+
+
+
+
     </style>
 
     <!--importing the css and libraries for esri.js-->
@@ -235,10 +262,6 @@
 
 
 
-
-
-
-
             // Create GroupLayer with the two MapImageLayers created above
             // as children layers.
             const ctntGroupLayer = new GroupLayer({
@@ -265,114 +288,84 @@
 
 
 
-        // Creates actions in the LayerList.
-        async function defineActions(event) {
-            const { item } = event;
+            // Creates actions in the LayerList.
+            async function defineActions(event) {
+                const { item } = event;
 
-            await item.layer.when();
+                await item.layer.when();
 
-            if (item.title === "US Demographics") {
-
-                item.actionsSections = [
-                [
-                    {
-                    title: "Go to full extent",
-                    icon: "zoom-out-fixed",
-                    id: "full-extent"
-                    },
-                    {
-                    title: "Layer information",
-                    icon: "information",
-                    id: "information"
+                // Adds a slider for updating a group layer's opacity
+                if (item.children.length > 1 && item.parent) {
+                    const slider = new Slider({
+                    min: 0,
+                    max: 1,
+                    precision: 2,
+                    values: [1],
+                    visibleElements: {
+                        labels: true,
+                        rangeLabels: true
                     }
-                ],
-                [
-                    {
-                    title: "Increase opacity",
-                    icon: "chevron-up",
-                    id: "increase-opacity"
-                    },
-                    {
-                    title: "Decrease opacity",
-                    icon: "chevron-down",
-                    id: "decrease-opacity"
-                    }
-                ]
-                ];
+                    });
+
+                    item.panel = {
+                    content: slider,
+                    icon: "sliders-horizontal",
+                    title: "Change layer opacity"
+                    };
+
+                    // Watch the slider's values array and update the layer's opacity
+                    reactiveUtils.watch(
+                    () => slider.values.map((value) => value),
+                    (values) => (item.layer.opacity = values[0])
+                    );
+                }
             }
 
-            // Adds a slider for updating a group layer's opacity
-            if (item.children.length > 1 && item.parent) {
-                const slider = new Slider({
-                min: 0,
-                max: 1,
-                precision: 2,
-                values: [1],
-                visibleElements: {
-                    labels: true,
-                    rangeLabels: true
-                }
+            view.when(() => {
+                const layerList = new LayerList({
+                    view: view,
+                    // executes for each ListItem in the LayerList
+                    listItemCreatedFunction: defineActions
                 });
 
-                item.panel = {
-                content: slider,
-                icon: "sliders-horizontal",
-                title: "Change layer opacity"
-                };
+                // Event listener that fires each time an action is triggered
+                layerList.on("trigger-action", (event) => {
+                    // The layer visible in the view at the time of the trigger.
+                    const visibleLayer = USALayer.visible ? USALayer : censusLayer;
 
-                // Watch the slider's values array and update the layer's opacity
-                reactiveUtils.watch(
-                () => slider.values.map((value) => value),
-                (values) => (item.layer.opacity = values[0])
-                );
-            }
-        }
+                    // Capture the action id.
+                    const id = event.action.id;
 
-        view.when(() => {
-            const layerList = new LayerList({
-                view: view,
-                // executes for each ListItem in the LayerList
-                listItemCreatedFunction: defineActions
-            });
-
-            // Event listener that fires each time an action is triggered
-            layerList.on("trigger-action", (event) => {
-                // The layer visible in the view at the time of the trigger.
-                const visibleLayer = USALayer.visible ? USALayer : censusLayer;
-
-                // Capture the action id.
-                const id = event.action.id;
-
-                if (id === "full-extent") {
-                // If the full-extent action is triggered then navigate
-                // to the full extent of the visible layer
-                view.goTo(visibleLayer.fullExtent).catch((error) => {
-                    if (error.name != "AbortError") {
-                    console.error(error);
+                    if (id === "full-extent") {
+                    // If the full-extent action is triggered then navigate
+                    // to the full extent of the visible layer
+                    view.goTo(visibleLayer.fullExtent).catch((error) => {
+                        if (error.name != "AbortError") {
+                        console.error(error);
+                        }
+                    });
+                    } else if (id === "information") {
+                    // If the information action is triggered, then
+                    // open the item details page of the service layer
+                    window.open(visibleLayer.url);
+                    } else if (id === "increase-opacity") {
+                    // If the increase-opacity action is triggered, then
+                    // increase the opacity of the GroupLayer by 0.25
+                    if (ctntGroupLayer.opacity < 1) {
+                        ctntGroupLayer.opacity += 0.25;
+                    }
+                    } else if (id === "decrease-opacity") {
+                    // If the decrease-opacity action is triggered, then
+                    // decrease the opacity of the GroupLayer by 0.25
+                    if (ctntGroupLayer.opacity > 0) {
+                        ctntGroupLayer.opacity -= 0.25;
+                    }
                     }
                 });
-                } else if (id === "information") {
-                // If the information action is triggered, then
-                // open the item details page of the service layer
-                window.open(visibleLayer.url);
-                } else if (id === "increase-opacity") {
-                // If the increase-opacity action is triggered, then
-                // increase the opacity of the GroupLayer by 0.25
-                if (ctntGroupLayer.opacity < 1) {
-                    ctntGroupLayer.opacity += 0.25;
-                }
-                } else if (id === "decrease-opacity") {
-                // If the decrease-opacity action is triggered, then
-                // decrease the opacity of the GroupLayer by 0.25
-                if (ctntGroupLayer.opacity > 0) {
-                    ctntGroupLayer.opacity -= 0.25;
-                }
-                }
-            });
 
-            // Add widget to the top right corner of the view
-            view.ui.add(layerList, "bottom-left");
-        });
+                // Add widget to the top right corner of the view
+                view.ui.add(layerList, "bottom-left");
+            });
 
 
 
@@ -407,13 +400,33 @@
                 position: "top-left"
             });
 
+
+            const pointRenderer = {
+                type: "simple",  // autocasts as new SimpleRenderer()
+                symbol: {
+                    type: "simple-marker",  // autocasts as new SimpleMarkerSymbol()
+                    size: 8,
+                    color: "#fb8197",
+                    outline: {  // autocasts as new SimpleLineSymbol()
+                        width: 0.5,
+                        color: "white"
+                    }
+                }
+            }
+
+
             // Create featurelayer from feature service 
             const layer = new FeatureLayer({ 
+                title: "Travel Intention Points (Survey123 Results)",
                 // URL to the service 
                 url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/survey123_baa11953da754e559d9154ea31915630_results/FeatureServer", //Your item URL Goes Here
+                
+                
                 //adding the popup here
                 outFields: ["your_nickname","where_are_you_from","which_cities_in_your_country_do","what_racial_or_ethnic_groups_de"],
-                popupTemplate: popupPOI
+                popupTemplate: popupPOI,
+                renderer:pointRenderer
+
             
             });
 
@@ -458,7 +471,7 @@
                 const racesExpand = new Expand({
                     view: view,
                     content: racesElement,
-                    expandIcon: "layer-filter",
+                    expandIcon: "filter",
                     group: "top-left"
                 });
 
@@ -472,7 +485,24 @@
                 view.ui.add(racesExpand, "top-left");
             });
 
-            
+
+
+
+            // Display the overlay when the page is loaded
+            window.onload = function () {
+                var overlay = document.getElementById('overlay');
+                overlay.style.display = 'flex';
+            };
+
+            // Hide the overlay when the user clicks anywhere on the page
+            document.addEventListener('click', function () {
+                var overlay = document.getElementById('overlay');
+                overlay.style.display = 'none';
+            });
+
+
+
+
 
         });
     </script>
@@ -490,6 +520,16 @@
         <div class="race-item visible-race" data-race="Pacific Islander or Hawaiian">Pacific Islander or Hawaiian</div>
         <div class="race-item visible-race" data-race="Multiracial or Biracial">Multiracial or Biracial</div>
         <div class="race-item visible-race" data-race="A race/ethnicity not listed here">A race/ethnicity not listed here</div>
+    </div>
+
+    <div id="overlay">
+        <div id="overlay-content">
+            <h2>Welcome to Travel Intentions Web App!</h2>
+            <p>The Travel Intentions Web App is a dynamic platform designed to gather, visualize, and analyze users' travel intentions, fostering cultural exchange and exploration. Users can contribute their travel intentions by clicking the "add record" button, which redirects them to Survey123 Web App built on ArcGIS hosted by Esri. This seamless integration ensures continuous data collection while visualizing travel intention patterns. The app features essential functions, including a search bar, locate widget, and zoom in/out toggles, alongside a basemap toggle for customizable viewing options, all within a user-friendly interface for easy navigation. Additionally, the platform provides a filter tool to gain valuable insights into global travel trends and preferences.</p>
+            <p>At its core, the app displays user-generated travel points on an interactive map, revealing valuable information about the user's origin and recommended cities to visit upon selection. Users can access this information in popups by clicking on specific points. Leveraging local travel recommendations enhances the reliability of destination choices, enabling users to seek advice from individuals in specific countries as a reference. </p>
+            <p>The Travel Intentions Web App serves as a valuable resource for travelers to seek authentic recommendations. By promoting cross-cultural understanding and empathy, the web app empowers users to discover new destinations and connects with a global community of travelers.</p>
+            <p>Click anywhere to continue.</p>
+        </div>
     </div>
 
     <div id="viewDiv"></div>
