@@ -369,11 +369,6 @@
 
 
 
-
-
-
-
-
             const bgExpand = new Expand({
                 view,
                 content: new BasemapGallery({ source, view }),
@@ -431,6 +426,38 @@
             });
 
             map.add(layer);
+
+
+            // Define a pop-up for usaeduLayer
+            const unescoPopup = {
+            "title": "<b>{name_en}</b>",
+            "content": "<b>Location:</b> {states_nam}<br><b>Description:</b> {short_desc}<br>"
+            }
+
+            // add a custom icon to display airports
+            const unescoRenderer = {
+                "type": "simple",
+                "symbol": {
+                "type": "picture-marker",
+                "url": "https://raw.githubusercontent.com/kcrowebasspro/travel-intentions/main/TourIcon/letter-c.png",
+                "width": "18px",
+                "height": "18px"
+                }
+            }
+
+            // Add the UNESCO natural heritage sites layer from the AGOL REST service
+            const unescoLayer = new FeatureLayer({
+                url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/World_Heritage_Sites/FeatureServer",
+
+                //adding the popup here
+                outFields: ["name_en","short_desc","states_nam"],
+                popupTemplate: unescoPopup,
+                renderer: unescoRenderer, // getting the icon
+                definitionExpression: "category_s = 'N'" //adding sql to filter for just the natural sites
+                });
+
+            // Add the layer to the map
+            map.add(unescoLayer);
 
             const searchWidget = new Search({
                 view: view
