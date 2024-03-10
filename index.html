@@ -369,11 +369,6 @@
 
 
 
-
-
-
-
-
             const bgExpand = new Expand({
                 view,
                 content: new BasemapGallery({ source, view }),
@@ -431,6 +426,39 @@
             });
 
             map.add(layer);
+
+            // THIS IS WHERE KEVIN C MADE ADDITIONS
+            // Define a pop-up for the UNESCO site layer
+            const unescoPopup = {
+            "title": "<b>{name_en}</b>",
+            "content": "<b>Location:</b> {states_nam}<br><b>Description:</b> {short_desc}"
+            }
+
+            // add a custom icon to display the cultural sites
+            const unescoRenderer = {
+                "type": "simple",
+                "symbol": {
+                "type": "picture-marker",
+                "url": "https://raw.githubusercontent.com/kcrowebasspro/travel-intentions/main/TourIcon/letter-n-yellow.png",
+                "width": "18px",
+                "height": "18px"
+                }
+            }
+
+            // Add the UNESCO natural heritage sites layer from the AGOL REST service
+            const unescoLayer = new FeatureLayer({
+                url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/World_Heritage_Sites/FeatureServer",
+
+                //adding the popup here
+                outFields: ["name_en","short_desc","states_nam"],
+                popupTemplate: unescoPopup,
+                renderer: unescoRenderer, // getting the icon
+                definitionExpression: "category_s = 'N'" //adding sql to filter for just the natural sites
+                });
+
+            // Add the layer to the map
+            map.add(unescoLayer);
+            // END ADDITIONS
 
             const searchWidget = new Search({
                 view: view
@@ -527,6 +555,7 @@
             <h2>Welcome to Travel Intentions Web App!</h2>
             <p>The Travel Intentions Web App is a dynamic platform designed to gather, visualize, and analyze users' travel intentions, fostering cultural exchange and exploration. Users can contribute their travel intentions by clicking the "add record" button, which redirects them to Survey123 Web App built on ArcGIS hosted by Esri. This seamless integration ensures continuous data collection while visualizing travel intention patterns. The app features essential functions, including a search bar, locate widget, and zoom in/out toggles, alongside a basemap toggle for customizable viewing options, all within a user-friendly interface for easy navigation. Additionally, the platform provides a filter tool to gain valuable insights into global travel trends and preferences.</p>
             <p>At its core, the app displays user-generated travel points on an interactive map, revealing valuable information about the user's origin and recommended cities to visit upon selection. Users can access this information in popups by clicking on specific points. Leveraging local travel recommendations enhances the reliability of destination choices, enabling users to seek advice from individuals in specific countries as a reference. </p>
+            <p>The map also displays <b>UNESCO Natural World Heritage Sites</b> for users to reference for their travels.</p>
             <p>The Travel Intentions Web App serves as a valuable resource for travelers to seek authentic recommendations. By promoting cross-cultural understanding and empathy, the web app empowers users to discover new destinations and connects with a global community of travelers.</p>
             <p>Click anywhere to continue.</p>
         </div>
