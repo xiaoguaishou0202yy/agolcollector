@@ -427,14 +427,14 @@
 
             map.add(layer);
 
-
-            // Define a pop-up for usaeduLayer
+            // THIS IS WHERE KEVIN C MADE ADDITIONS
+            // Define a pop-up for the UNESCO site layer
             const unescoPopup = {
             "title": "<b>{name_en}</b>",
             "content": "<b>Location:</b> {states_nam}<br><b>Description:</b> {short_desc}"
             }
 
-            // add a custom icon to display airports
+            // add a custom icon to display the cultural sites
             const unescoRenderer = {
                 "type": "simple",
                 "symbol": {
@@ -458,6 +458,7 @@
 
             // Add the layer to the map
             map.add(unescoLayer);
+            // END ADDITIONS
 
             const searchWidget = new Search({
                 view: view
