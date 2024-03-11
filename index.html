@@ -433,7 +433,28 @@
             map.add(layer);
 
             //Adding popup for Museum layer
-            //const popupMuseum = 
+            const popupMuseum = {
+              title: "{Common_Nam}",
+              content: [
+                {
+                  type: "fields",
+                  fieldInfos: [
+                    {
+                      fieldName: "Legal_Name",
+                      label: "Legal Name"
+                    },
+                    {
+                      fieldName: "Website",
+                      label: "Website"
+                    },
+                    {
+                      fieldName: "Affiliated",
+                      label: "Affiliated Organization"
+                    }
+                  ]
+                }
+              ]
+            };  
 
             //Adding renderer for county layer
             const museumRenderer = {
@@ -452,7 +473,7 @@
             //Defining county layer properties
             const museumlayer = new FeatureLayer({
                 url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/Art_Museums_view/FeatureServer",
-                //popupTemplate: popupMuseum,
+                popupTemplate: popupMuseum,
                 renderer: museumRenderer
             });
 
