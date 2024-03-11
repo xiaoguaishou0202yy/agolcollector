@@ -405,7 +405,7 @@
                 type: "simple",  // autocasts as new SimpleRenderer()
                 symbol: {
                     type: "simple-marker",  // autocasts as new SimpleMarkerSymbol()
-                    size: 8,
+                    size: 6,
                     color: "#fb8197",
                     outline: {  // autocasts as new SimpleLineSymbol()
                         width: 0.5,
@@ -431,6 +431,57 @@
             });
 
             map.add(layer);
+
+            //Adding popup for Museum layer
+            const popupMuseum = {
+              title: "{Common_Nam}",
+              content: [
+                {
+                  type: "fields",
+                  fieldInfos: [
+                    {
+                      fieldName: "Legal_Name",
+                      label: "Legal Name"
+                    },
+                    {
+                      fieldName: "Website",
+                      label: "Website"
+                    },
+                    {
+                      fieldName: "Affiliated",
+                      label: "Affiliated Organization"
+                    }
+                  ]
+                }
+              ]
+            };  
+
+            //Adding renderer for county layer
+            const museumRenderer = {
+                type: "simple",  // autocasts as new SimpleRenderer()
+                symbol: {
+                  type:"simple-marker",  // autocasts as new SimpleMarkerSymbol()
+                  size: 6,
+                  color: "green",
+                  outline: {  // autocasts as new SimpleLineSymbol()
+                    width: 0.5,
+                    color: "white"
+                  }
+                }
+            };
+            
+            //Defining county layer properties
+            const museumlayer = new FeatureLayer({
+                url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/Art_Museums_view/FeatureServer",
+                popupTemplate: popupMuseum,
+                renderer: museumRenderer
+            });
+
+            //Title for the layer in legend
+            museumlayer.title = "Art Museums";
+            
+            //Add county layer to the map.
+            map.add(museumlayer);
 
             const searchWidget = new Search({
                 view: view
