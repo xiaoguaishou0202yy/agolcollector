@@ -437,12 +437,15 @@
 
             //Adding renderer for county layer
             const museumRenderer = {
-                "type": "simple",
-                "symbol": {
-                "type": "picture-marker",
-                "url": "https://raw.githubusercontent.com/jnbraun2/agolcollector/8c840210787ec85d1e3092731ec76131398d3045/mus_icon2.png",
-                "width": "16px",
-                "height": "16px"
+                type: "simple",  // autocasts as new SimpleRenderer()
+                symbol: {
+                  type:"simple-marker",  // autocasts as new SimpleMarkerSymbol()
+                  size: 8,
+                  color: "green",
+                  outline: {  // autocasts as new SimpleLineSymbol()
+                    width: 0.5,
+                    color: white
+                  }
                 }
             };
             
@@ -454,7 +457,7 @@
             });
 
             //Title for the layer in legend
-            //museumlayer.title = "Art Museums";
+            museumlayer.title = "Art Museums";
             
             //Add county layer to the map.
             map.add(museumlayer);
