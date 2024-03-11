@@ -432,6 +432,25 @@
 
             map.add(layer);
 
+            //Adding popup for Museum layer
+            //const popupMuseum = 
+
+            //Adding renderer for county layer
+            //const museumRenderer = 
+            
+            //Defining county layer properties
+            const museumlayer = new FeatureLayer({
+                url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/Art_Museums_view/FeatureServer",
+                //popupTemplate: popupCounty,
+                //renderer:
+            });
+
+            //Title for the layer in legend
+            //museumlayer.title = "Art Museums";
+            
+            //Add county layer to the map.
+            map.add(museumlayer);
+
             const searchWidget = new Search({
                 view: view
             });
